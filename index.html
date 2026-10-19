@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="لعبة تعليمية للأطفال: اضغط على البالون الذي تبدأ صورته بحرف الباء ليسقط في القطار">
+<meta name="theme-color" content="#bfe9ff">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%88%3C/text%3E%3C/svg%3E">
+<title>بالونات حرف الباء</title>
+<style>
+:root{--sky1:#bfe9ff;--sky2:#eaf8ff;--ink:#23395d;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root{--sky1:#1d3a6b;--sky2:#2f5b94;--ink:#fff}}
+:root[data-theme="dark"]{--sky1:#1d3a6b;--sky2:#2f5b94;--ink:#fff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+html,body{height:100%;margin:0;overflow:hidden;font-family:"Segoe UI",Tahoma,Arial,sans-serif;color:var(--ink);background:linear-gradient(var(--sky1),var(--sky2))}
+#top{position:absolute;top:calc(env(safe-area-inset-top,0px) + 8px);inset-inline:12px;display:flex;justify-content:space-between;align-items:center;z-index:5;font-size:1.3rem;font-weight:700}
+#hear{border:0;border-radius:30px;padding:8px 16px;font-size:1.1rem;background:#fff;color:#23395d;box-shadow:0 3px 0 #0003;cursor:pointer}
+#field{position:absolute;inset:0}
+.b{position:absolute;width:92px;height:112px;border-radius:50% 50% 48% 48%;display:flex;align-items:center;justify-content:center;font-size:46px;cursor:pointer;box-shadow:inset -10px -10px 0 #0002,inset 8px 8px 0 #fff4;will-change:transform}
+.b::after{content:"";position:absolute;bottom:-26px;left:50%;width:2px;height:26px;background:#0006}
+.b.no{animation:sh .4s}
+@keyframes sh{25%{translate:-10px}75%{translate:10px}}
+.fly{position:absolute;font-size:46px;z-index:6;transition:left .8s ease-in,top .8s cubic-bezier(.5,0,1,.6),font-size .8s;pointer-events:none}
+#ground{position:absolute;bottom:0;inset-inline:0;height:150px;background:#7bc96f;border-top:8px solid #5aa650}
+#rail{position:absolute;bottom:34px;inset-inline:0;height:6px;background:#6b4f3a}
+#train{position:absolute;bottom:40px;inset-inline:0;display:flex;justify-content:center;align-items:flex-end;gap:6px;direction:ltr}
+.eng{font-size:62px;line-height:1}
+.car{width:110px;height:84px;background:#e53935;border:4px solid #8e1b18;border-radius:8px 8px 14px 14px;display:flex;align-items:center;justify-content:center;position:relative}
+.car::after{content:"";position:absolute;bottom:-14px;left:12px;width:20px;height:20px;border-radius:50%;background:#333;box-shadow:58px 0 #333}
+.car.main{background:#ffc107;border-color:#b78600;font-size:64px;font-weight:800;color:#23395d;direction:rtl}
+.slot{font-size:36px;opacity:.95}
+@media (max-width:560px){.car{width:70px;height:70px}.car.main{font-size:48px}.eng{font-size:46px}.slot{font-size:26px}.b{width:78px;height:96px;font-size:38px}}
+#msg{position:absolute;top:22%;inset-inline:0;text-align:center;font-size:2.4rem;font-weight:800;z-index:7;pointer-events:none;opacity:0;transition:opacity .25s}
+#msg.on{opacity:1}
+.ov{position:absolute;inset:0;z-index:20;background:#0009;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;text-align:center;color:#fff;padding:20px}
+.ov.hide{display:none}
+.ov h1{font-size:2.4rem;margin:0}
+.ov p{font-size:1.3rem;margin:0}
+.ov button{border:0;border-radius:40px;padding:14px 40px;font-size:1.6rem;font-weight:800;background:#ffc107;color:#23395d;cursor:pointer;box-shadow:0 5px 0 #b78600}
+</style>
+</head>
+<body>
+<div id="top"><span>⭐ <span id="sc">0</span> / 6</span><button id="hear">🔊 حرف الباء</button></div>
+<div id="field"></div>
+<div id="msg"></div>
+<div id="ground"></div><div id="rail"></div>
+<div id="train"><span class="eng">🚂</span><div id="slots" style="display:flex;gap:6px;align-items:flex-end;direction:rtl"></div><div class="car main" id="wagon">ب</div></div>
+<div class="ov" id="start"><h1>🎈 بالونات حرف الباء 🚂</h1><p>اضغط على البالون الذي تبدأ صورته بحرف <b>ب</b> ليسقط في القطار!</p><button id="go">ابدأ اللعب</button></div>
+<div class="ov hide" id="win"><h1>🎉 أحسنت! أنت بطل حرف الباء 🎉</h1><p id="wl"></p><button id="again">العب مرة أخرى</button></div>
+<script>
+const T=[["بطة","🦆"],["بقرة","🐄"],["بيت","🏠"],["بطيخ","🍉"],["بيضة","🥚"],["ببغاء","🦜"]];
+const D=[["قطة","🐱"],["تفاحة","🍎"],["شمس","☀️"],["جمل","🐪"],["سمكة","🐟"],["موزة","🍌"],["فيل","🐘"],["أسد","🦁"],["نجمة","⭐"],["كتاب","📖"],["ديك","🐓"],["عنب","🍇"]];
+const COL=["#ff6b6b","#4dabf7","#ffd43b","#69db7c","#da77f2","#ff922b"];
+const field=document.getElementById('field'),msg=document.getElementById('msg');
+let balloons=[],score=0,running=false,last=0,spawnT=0,got=[];
+let AC;function beep(f,d,t='sine'){try{AC=AC||new AudioContext();const o=AC.createOscillator(),g=AC.createGain();o.type=t;o.frequency.value=f;g.gain.value=.15;o.connect(g);g.connect(AC.destination);o.start();g.gain.exponentialRampToValueAtTime(.001,AC.currentTime+d);o.stop(AC.currentTime+d)}catch(e){}}
+function say(t){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='ar-SA';u.rate=.8;speechSynthesis.speak(u)}catch(e){}}
+function show(t,c){msg.textContent=t;msg.style.color=c;msg.classList.add('on');clearTimeout(show.t);show.t=setTimeout(()=>msg.classList.remove('on'),1100)}
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+function spawn(){
+  if(balloons.filter(b=>b.t).length>=2&&Math.random()<.85&&balloons.length>2)return spawnDistractor();
+  const usable=T.filter(x=>!balloons.some(b=>b.w===x[0]));
+  const it=pick(usable.length?usable:T);add(it,true);
+}
+function spawnDistractor(){add(pick(D),false)}
+function add(it,t){
+  const el=document.createElement('div');el.className='b';el.textContent=it[1];el.style.background=pick(COL);
+  const W=field.clientWidth,x=10+Math.random()*(W-110),y=field.clientHeight+30;
+  const b={el,x,y,sp:50+Math.random()*35,ph:Math.random()*6,w:it[0],e:it[1],t};
+  el.onpointerdown=ev=>{ev.preventDefault();hit(b)};
+  field.appendChild(el);balloons.push(b);
+}
+function rm(b){b.el.remove();balloons=balloons.filter(x=>x!==b)}
+function hit(b){
+  if(!running)return;
+  if(b.t){
+    beep(660,.15);setTimeout(()=>beep(880,.2),120);
+    say(b.w);show(b.w+" ✔","#1b9e3a");
+    const r=b.el.getBoundingClientRect(),w=document.getElementById('wagon').getBoundingClientRect();
+    const f=document.createElement('div');f.className='fly';f.textContent=b.e;f.style.left=r.left+20+'px';f.style.top=r.top+20+'px';
+    document.body.appendChild(f);rm(b);
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{f.style.left=w.left+w.width/2-16+'px';f.style.top=w.top+10+'px';f.style.fontSize='30px'}));
+    setTimeout(()=>{f.remove();const s=document.createElement('span');s.className='slot';s.textContent=b.e;document.getElementById('slots').appendChild(s);
+      score++;document.getElementById('sc').textContent=score;beep(520,.1);if(score>=6)finish()},800);
+  }else{
+    beep(180,.3,'square');b.el.classList.add('no');
+    say(b.w);show(b.w+" ليست بحرف ب","#d6336c");
+    setTimeout(()=>b.el.classList.remove('no'),400);
+  }
+}
+function finish(){running=false;document.getElementById('wl').textContent="بطة • بقرة • بيت • بطيخ • بيضة • ببغاء";
+  setTimeout(()=>{document.getElementById('win').classList.remove('hide');say("أحسنت! بطل حرف الباء");[523,659,784,1047].forEach((f,i)=>setTimeout(()=>beep(f,.25),i*160))},500)}
+function reset(){balloons.forEach(b=>b.el.remove());balloons=[];score=0;document.getElementById('sc').textContent=0;document.getElementById('slots').innerHTML='';spawnT=0;running=true;last=performance.now();
+  for(let i=0;i<3;i++){spawn();balloons[i].y-=i*150}
+  requestAnimationFrame(loop)}
+function loop(t){
+  if(!running)return;const dt=Math.min((t-last)/1000,.05);last=t;spawnT+=dt;
+  if(spawnT>1.1){spawnT=0;spawn()}
+  for(const b of [...balloons]){b.y-=b.sp*dt;const sx=Math.sin(t/700+b.ph)*18;
+    b.el.style.transform=`translate(${b.x+sx}px,${b.y}px)`;b.el.style.left=0;b.el.style.top=0;
+    if(b.y<-150)rm(b)}
+  requestAnimationFrame(loop)}
+document.getElementById('hear').onclick=()=>say("حرف الباء. ب");
+document.getElementById('go').onclick=()=>{document.getElementById('start').classList.add('hide');say("اختر الصورة التي تبدأ بحرف الباء");reset()};
+document.getElementById('again').onclick=()=>{document.getElementById('win').classList.add('hide');reset()};
+</script>
+</body>
+</html>
